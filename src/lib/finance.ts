@@ -72,7 +72,8 @@ export function cashFlowSeries(txs: Transaction[], range: RangeKey, today: ISODa
     }
   } else {
     for (const m of monthsList(monthOf(start), monthOf(today))) {
-      buckets.push({ key: m, label: range === 'ALL' || range === '1Y' ? `${monthLabel(m)} ’${m.slice(2, 4)}` : monthLabel(m), from: monthStart(m), to: monthEnd(m) > today ? today : monthEnd(m), income: 0, expense: 0, net: 0 });
+      const base = range === 'ALL' || range === '1Y' ? `${monthLabel(m)} ’${m.slice(2, 4)}` : monthLabel(m);
+      buckets.push({ key: m, label: monthEnd(m) > today ? `${base} (to date)` : base, from: monthStart(m), to: monthEnd(m) > today ? today : monthEnd(m), income: 0, expense: 0, net: 0 });
     }
   }
   for (const t of txs) {

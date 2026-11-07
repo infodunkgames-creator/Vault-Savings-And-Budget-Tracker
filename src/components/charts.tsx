@@ -82,18 +82,19 @@ export function DonutChart({ slices, total, label = 'total spent', size = 190 }:
   );
 }
 
-export function SimpleBars({ data, keys, height = 260, stacked }: {
-  data: Record<string, unknown>[]; keys: { key: string; name: string; color: string }[]; height?: number; stacked?: boolean;
+export function SimpleBars({ data, keys, height = 260, stacked, horizontal }: {
+  data: Record<string, unknown>[]; keys: { key: string; name: string; color: string }[]; height?: number; stacked?: boolean; horizontal?: boolean;
 }) {
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <BarChart data={data} margin={{ top: 10, right: 6, left: -8, bottom: 0 }} barGap={2} barCategoryGap="28%">
-        {GRID}
-        <XAxis dataKey="label" {...AXIS} dy={6} minTickGap={8} />
-        <YAxis {...AXIS} tickFormatter={compact} width={56} />
+      <BarChart data={data} layout={horizontal ? 'vertical' : 'horizontal'} margin={{ top: 10, right: 10, left: horizontal ? 0 : -8, bottom: 0 }} barGap={2} barCategoryGap={horizontal ? '22%' : '28%'}>
+        {horizontal ? <CartesianGrid stroke="#1b1d33" horizontal={false} /> : GRID}
+        {horizontal ? <XAxis type="number" {...AXIS} tickFormatter={compact} /> : <XAxis dataKey="label" {...AXIS} dy={6} minTickGap={8} />}
+        {horizontal ? <YAxis type="category" dataKey="label" {...AXIS} width={92} interval={0} /> : <YAxis {...AXIS} tickFormatter={compact} width={56} />}
         <Tooltip content={<MoneyTip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
         {keys.length > 1 && <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12, color: '#B6B8CC' }} />}
-        {keys.map((k) => <Bar key={k.key} dataKey={k.key} name={k.name} fill={k.color} radius={stacked ? 0 : [4, 4, 0, 0]} stackId={stacked ? 's' : undefined} maxBarSize={28} />)}
+        {keys.map((k) => <Bar key={k.key} dataKey={k.key} name={k.name} fill={k.color} radius={stacked ? 0 : horizontal ? [0, 4, 4, 0] : [4, 4, 0, 0]} stackId={stacked ? 's' : undefined} maxBarSize={horizontal ? 12 : 28}
+          stroke={stacked ? '#111225' : undefined} strokeWidth={stacked ? 1 : 0} />)}
       </BarChart>
     </ResponsiveContainer>
   );
@@ -118,7 +119,7 @@ export function SimpleLine({ data, keys, height = 240, percent, zeroLine }: {
 }
 
 export function AreaSingle({ data, dataKey, name, color = '#00D9A0', height = 240 }: { data: Record<string, unknown>[]; dataKey: string; name: string; color?: string; height?: number }) {
-  const id = `g-${dataKey}`;
+  const id = `g-${dataKey.replace(/[^a-zA-Z0-9]/g, '')}`;
   return (
     <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={data} margin={{ top: 10, right: 10, left: -8, bottom: 0 }}>

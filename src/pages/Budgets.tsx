@@ -28,7 +28,7 @@ export function Budgets() {
   const sum = useMemo(() => budgetSummary(rows, state.transactions, month), [rows, state.transactions, month]);
   const isCurrent = month === monthOf(state.today);
   const hasOverrides = state.budgetOverrides.some((o) => o.month === month);
-  const chartData = rows.filter((r) => r.planned > 0 || r.spent > 0).map((r) => ({ label: r.category.name.split(' ')[0], Planned: r.planned, Actual: r.spent }));
+  const chartData = rows.filter((r) => r.planned > 0 || r.spent > 0).map((r) => ({ label: r.category.name.split(' ')[0].replace(/,$/, ''), Planned: r.planned, Actual: r.spent }));
 
   const deleteCategory = async (c: Category) => {
     const used = state.transactions.filter((t) => t.category_id === c.id).length;
@@ -107,7 +107,7 @@ export function Budgets() {
 
         <div className="stack">
           <Card title="Planned vs actual" sub={monthLabel(month, true)}>
-            {chartData.length ? <SimpleBars data={chartData} height={280} keys={[{ key: 'Planned', name: 'Planned', color: '#2F3354' }, { key: 'Actual', name: 'Actual', color: '#00D9A0' }]} /> : <div className="muted small">No budget data for this month.</div>}
+            {chartData.length ? <SimpleBars horizontal data={chartData} height={Math.max(220, chartData.length * 38)} keys={[{ key: 'Planned', name: 'Planned', color: '#2F3354' }, { key: 'Actual', name: 'Actual', color: '#00D9A0' }]} /> : <div className="muted small">No budget data for this month.</div>}
           </Card>
           <Card title="Income categories" sub="Used to classify money coming in" action={<button className="card-link" onClick={() => setCatModal({ cat: null, kind: 'income' })}>+ Add</button>}>
             <div className="list">

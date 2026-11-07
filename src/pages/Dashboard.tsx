@@ -116,6 +116,7 @@ export function Dashboard() {
             <div className="spacer" />
             <SafeMini safe={safe} />
           </div>
+          <SafeAllocation safe={safe} />
           {safe.availableLines.length === 0 && (
             <div className="small muted mt-16 row"><Info size={14} />Mark a checking or cash account as “available to spend” on the <Link to="/net-worth" className="card-link">Net Worth</Link> page.</div>
           )}
@@ -186,6 +187,28 @@ export function Dashboard() {
         <SafeBreakdown safe={safe} />
       </Modal>
       <GoalModal open={goalOpen} onClose={() => setGoalOpen(false)} />
+    </div>
+  );
+}
+
+function SafeAllocation({ safe }: { safe: SafeToSpend }) {
+  if (safe.available <= 0) return null;
+  const parts = [
+    { label: 'Bills & minimums', v: safe.bills, c: 'var(--red)' },
+    { label: 'Planned spending', v: safe.planned, c: 'var(--yellow)' },
+    { label: 'Savings', v: safe.savings, c: 'var(--blue)' },
+    { label: 'Safe to spend', v: Math.max(0, safe.safe), c: 'var(--green)' },
+  ];
+  const total = Math.max(safe.available, parts.reduce((s, p) => s + p.v, 0));
+  return (
+    <div className="mt-16">
+      <div className="small muted" style={{ marginBottom: 8 }}>Where your available {money(safe.available, { whole: true })} is committed</div>
+      <div className="alloc" role="img" aria-label="Allocation of available money">
+        {parts.filter((p) => p.v > 0).map((p) => <span key={p.label} title={`${p.label}: ${money(p.v)}`} style={{ width: `${(p.v / total) * 100}%`, background: p.c }} />)}
+      </div>
+      <div className="chart-legend" style={{ marginTop: 10 }}>
+        {parts.map((p) => <span key={p.label}><i style={{ background: p.c }} />{p.label} · {Math.round((p.v / total) * 100)}%</span>)}
+      </div>
     </div>
   );
 }
