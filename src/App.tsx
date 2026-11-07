@@ -17,6 +17,7 @@ import { Debts } from './pages/Debts';
 import { Calendar } from './pages/Calendar';
 import { NetWorth } from './pages/NetWorth';
 import { Preferences, Profile } from './pages/Settings';
+import { Login } from './pages/Login';
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
   state = { error: null as Error | null };
@@ -35,7 +36,8 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
 }
 
 function Gate() {
-  const { state, loading, error, reload } = useData();
+  const { state, loading, error, reload, needsLogin } = useData();
+  if (needsLogin) return <Login onSuccess={reload} />;
   if (loading && !state) return <div className="main" style={{ maxWidth: 1400, margin: '0 auto' }}><Loading /></div>;
   if (error && !state) {
     return (

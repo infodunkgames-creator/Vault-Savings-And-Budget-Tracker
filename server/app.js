@@ -6,6 +6,7 @@ import { tx, TABLES_IN_RESTORE_ORDER } from './db.js';
 import { ensureUser, seedDemo, clearDemo, hasDemo, getSetting, setSetting, seedDefaults, DEFAULT_SETTINGS } from './seed.js';
 import { validate, HttpError, FREQUENCIES } from './validate.js';
 import { todayISO, monthOf } from './dates.js';
+import { createAuth } from './auth.js';
 
 const ACCOUNT_ASSET_TYPES = ['checking', 'savings', 'cash', 'investment', 'retirement', 'vehicle', 'property', 'other_asset'];
 const ACCOUNT_LIABILITY_TYPES = ['credit_card', 'student_loan', 'auto_loan', 'personal_loan', 'mortgage', 'other_liability'];
@@ -89,9 +90,24 @@ const TABLE_FOR = {
   bill: 'bills', goal: 'goals', debt: 'debts',
 };
 
-export function createApp(db, { staticDir } = {}) {
+export function createApp(db, { staticDir, password = process.env.VAULT_PASSWORD, sessionSecret = process.env.VAULT_SESSION_SECRET } = {}) {
   const app = express();
+  app.set('trust proxy', 1); // behind the host's HTTPS proxy: correct req.secure / req.ip
+  app.disable('x-powered-by');
+  app.use((_req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Referrer-Policy', 'same-origin');
+    next();
+  });
   app.use(express.json({ limit: '10mb' }));
+
+  // --- Password gate (hosted deployments set VAULT_PASSWORD) ------------------------------
+  const auth = createAuth({ password, secret: sessionSecret });
+  app.get('/api/auth/status', auth.status);
+  app.post('/api/auth/login', auth.login);
+  app.post('/api/auth/logout', auth.logout);
+  app.use('/api', auth.middleware);
 
   // --- Auth seam ---------------------------------------------------------------------------
   // Vault runs in single-user local mode: every request is scoped to user 1. All queries below

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Download, Upload, FlaskConical, Trash2, Bell, Database, Globe, Shield, RotateCcw } from 'lucide-react';
+import { Download, Upload, FlaskConical, Trash2, Bell, Database, Globe, Shield, RotateCcw, LogOut } from 'lucide-react';
 import { useAppState, useData } from '../store/DataContext';
 import { Card, Field } from '../components/ui';
 import { useConfirm } from '../components/Modal';
@@ -22,6 +22,10 @@ export function Profile() {
     if (Object.keys(er).length) return setErr(er);
     await run(() => api.put('/api/settings/profile', { name: name.trim(), email: email.trim() }), 'Profile saved');
   };
+  const { reload } = useData();
+  const [authRequired, setAuthRequired] = useState(false);
+  useEffect(() => { api.get<{ required: boolean }>('/api/auth/status').then((r) => setAuthRequired(r.required)).catch(() => {}); }, []);
+  const logout = async () => { await api.post('/api/auth/logout'); await reload(); };
   const counts = [
     ['Transactions', state.transactions.length], ['Accounts', state.accounts.length], ['Bills', state.bills.length],
     ['Savings goals', state.goals.length], ['Debts', state.debts.length], ['Income sources', state.incomeSources.length],
@@ -45,6 +49,7 @@ export function Profile() {
           {counts.map(([l, n]) => <div className="kv" key={l}><span>{l}</span><b className="num">{n}</b></div>)}
           <div className="divider" />
           <div className="small muted row" style={{ alignItems: 'flex-start' }}><Shield size={14} style={{ flexShrink: 0, marginTop: 2 }} />Vault uses manual entry only. It never asks for, or stores, bank usernames, passwords or account credentials.</div>
+          {authRequired && <><div className="divider" /><button className="btn" onClick={logout}><LogOut size={15} />Sign out of this device</button></>}
         </Card>
       </div>
     </div>

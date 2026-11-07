@@ -29,6 +29,21 @@ Environment variables:
 - `VAULT_DB`: database file path (default `data/vault.db`).
 - `VAULT_NO_DEMO=1`: start empty instead of loading sample data.
 
+## Deploying online (Railway)
+
+The repo includes `railway.json`: it builds with `npm run build`, starts with `npm start`, and health-checks `/api/health`.
+
+1. Create a Railway project from this GitHub repo and select your deployment branch.
+2. Add a **Volume** to the service, mounted at `/data`.
+3. Set these variables:
+   - `VAULT_PASSWORD`: required. It gates the whole app behind a sign-in.
+   - `VAULT_DB=/data/vault.db`: keeps the database on the volume so it survives redeploys.
+   - `VAULT_NO_DEMO=1`: optional. Start empty instead of with sample data.
+   - `VAULT_SESSION_SECRET`: optional. A long random string that signs sign-in sessions; changing it signs out every device.
+4. Under **Networking**, generate a public domain and open it on your phone.
+
+Sessions last 30 days and use an HttpOnly cookie. After 5 wrong passwords, sign-in is blocked for 5 minutes. When `VAULT_PASSWORD` is not set (local development), no sign-in is required.
+
 ## Demo data
 
 On first run Vault loads a year of realistic sample data. Every sample record is stored with `is_demo = 1` and shown with a **DEMO** tag. A banner on every page and a button in **Preferences** remove it in one step. Anything you entered yourself is kept, along with your categories and budgets. You can reload the demo later from Preferences.
@@ -96,7 +111,7 @@ src/
 ## Security & privacy
 
 - Vault uses **manual entry only**. It never asks for or stores bank usernames, passwords or credentials.
-- It currently runs in single-user local mode. Every query is already scoped by `user_id`, so adding real authentication only means replacing the `req.userId` middleware in `server/app.js`.
+- Hosted deployments are protected by a single password (`VAULT_PASSWORD`). Vault is single-user: every query is scoped by `user_id`, so multi-user accounts would mean replacing the password gate in `server/auth.js` with per-user sign-in.
 
 ### Path to bank integrations
 
