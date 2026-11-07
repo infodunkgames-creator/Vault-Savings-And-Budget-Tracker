@@ -586,7 +586,13 @@ export function createApp(db, { staticDir, password = process.env.VAULT_PASSWORD
 
   // --- Static client (production) ----------------------------------------------------------
   if (staticDir && fs.existsSync(staticDir)) {
-    app.use(express.static(staticDir));
+    app.use(express.static(staticDir, {
+      setHeaders: (res, file) => {
+        // Always revalidate the shell and service worker so new releases reach installed apps.
+        if (file.endsWith('index.html') || file.endsWith('sw.js') || file.endsWith('.webmanifest')) res.setHeader('Cache-Control', 'no-cache');
+        else if (file.includes(`${path.sep}assets${path.sep}`)) res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      },
+    }));
     app.get(/^(?!\/api\/).*/, (_req, res) => res.sendFile(path.join(staticDir, 'index.html')));
   }
 

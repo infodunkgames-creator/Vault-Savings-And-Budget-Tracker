@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutGrid, BarChart3, ArrowLeftRight, PieChart, Receipt, PiggyBank, CreditCard, CalendarDays, Landmark, User, SlidersHorizontal,
-  Bell, Search, Menu, Plus, Wallet, CheckCheck, X, FlaskConical,
+  Bell, Search, Menu, Plus, Wallet, CheckCheck, X, FlaskConical, MoreHorizontal,
 } from 'lucide-react';
 import { useData, useAppState } from '../store/DataContext';
 import { buildNotifications } from '../lib/finance';
@@ -91,7 +91,6 @@ export function Layout() {
             <SearchButton />
             <NotificationBell notifications={notifications} />
             <button className="btn btn-primary hide-sm" onClick={() => setAddOpen(true)}><Plus size={16} />Add</button>
-            <button className="icon-btn mobile-only" onClick={() => setAddOpen(true)} aria-label="Add transaction" style={{ background: 'var(--green)', color: 'var(--green-ink)', borderColor: 'var(--green)' }}><Plus size={18} /></button>
             <NavLink to="/profile" className="avatar" title={name} aria-label="Profile">{initials(name)}</NavLink>
           </div>
         </header>
@@ -107,6 +106,13 @@ export function Layout() {
         )}
         <Outlet />
       </main>
+      <nav className="tabbar" aria-label="Quick navigation">
+        <NavLink to="/" end className={({ isActive }) => `tab${isActive ? ' on' : ''}`}><LayoutGrid size={20} /><span>Home</span></NavLink>
+        <NavLink to="/transactions" className={({ isActive }) => `tab${isActive ? ' on' : ''}`}><ArrowLeftRight size={20} /><span>Activity</span></NavLink>
+        <button className="tab-add" onClick={() => setAddOpen(true)} aria-label="Add transaction"><Plus size={24} /></button>
+        <NavLink to="/budgets" className={({ isActive }) => `tab${isActive ? ' on' : ''}`}><PieChart size={20} /><span>Budgets</span></NavLink>
+        <button className={`tab${open ? ' on' : ''}`} onClick={() => setOpen(true)}><MoreHorizontal size={20} /><span>More</span>{billAlerts > 0 && <i className="tab-dot" />}</button>
+      </nav>
       <TransactionModal open={addOpen} onClose={() => setAddOpen(false)} />
     </div>
   );

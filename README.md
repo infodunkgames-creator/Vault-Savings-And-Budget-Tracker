@@ -44,6 +44,15 @@ The repo includes `railway.json`: it builds with `npm run build`, starts with `n
 
 Sessions last 30 days and use an HttpOnly cookie. After 5 wrong passwords, sign-in is blocked for 5 minutes. When `VAULT_PASSWORD` is not set (local development), no sign-in is required.
 
+## Install on your phone
+
+Vault is an installable web app (PWA). Once it's online, open its address and add it to your home screen. It then launches full-screen with its own icon and a bottom tab bar.
+
+- **iPhone:** in **Safari**, tap Share → **Add to Home Screen**. On iOS, only Safari can install.
+- **Android:** in Chrome, tap ⋮ → **Install app** (or **Add to Home screen**).
+
+The service worker caches only the app's code, so it opens instantly. Financial data is never cached: it always comes live from your server.
+
 ## Demo data
 
 On first run Vault loads a year of realistic sample data. Every sample record is stored with `is_demo = 1` and shown with a **DEMO** tag. A banner on every page and a button in **Preferences** remove it in one step. Anything you entered yourself is kept, along with your categories and budgets. You can reload the demo later from Preferences.
