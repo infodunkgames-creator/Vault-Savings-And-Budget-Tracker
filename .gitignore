@@ -1,7 +1,9 @@
+# Your private data: never committed to git
+budget.db
+budget.db-*
+backups/
+
+# Things that can always be re-created
 node_modules
 dist
-data/*.db
-data/*.db-*
-*.tsbuildinfo
 .DS_Store
-test-results
